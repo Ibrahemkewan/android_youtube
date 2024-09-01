@@ -33,8 +33,25 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_below="@id/btn_add_video"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/recommended_videos_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recommended Videos"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_below="@id/recycler_view"
+            android:layout_marginTop="16dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_recommended"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/recommended_videos_label"
             android:padding="16dp" />
     </RelativeLayout>
 
@@ -46,4 +63,5 @@
         android:fitsSystemWindows="true"
         android:background="?android:attr/windowBackground"
         app:menu="@menu/drawer_menu" />
+
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -34,8 +34,11 @@ public class VideoListActivity extends AppCompatActivity {
     private static final int REQUEST_ADD_VIDEO = 1;
 
     private RecyclerView recyclerView;
+    private RecyclerView recommendedRecyclerView;
     private VideoAdapter videoAdapter;
+    private VideoAdapter recommendedVideoAdapter;
     private List<Video> videoList;
+    private List<Video> recommendedVideoList;
     private DrawerLayout drawerLayout;
     private OkHttpClient client;
 
@@ -71,6 +74,7 @@ public class VideoListActivity extends AppCompatActivity {
                     startActivity(intent);
                 } else if (id == R.id.nav_videos) {
                     loadVideos();
+                    loadRecommendedVideos();
                 } else if (id == R.id.nav_logout) {
                     logout();
                 }
@@ -82,9 +86,14 @@ public class VideoListActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        // Set up the recommended videos RecyclerView
+        recommendedRecyclerView = findViewById(R.id.recycler_view_recommended);
+        recommendedRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
         client = new OkHttpClient();
 
         loadVideos();
+        loadRecommendedVideos();  // Load recommended videos on startup
     }
 
     private void loadVideos() {
@@ -126,6 +135,50 @@ public class VideoListActivity extends AppCompatActivity {
                     });
                 } else {
                     Log.e(TAG, "Failed to fetch videos: " + response.message());
+                }
+            }
+        });
+    }
+
+    private void loadRecommendedVideos() {
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String token = sharedPreferences.getString(TOKEN_KEY, null);
+
+        if (token == null) {
+            Log.e(TAG, "Token not found in SharedPreferences");
+            return;
+        }
+
+        Request request = new Request.Builder()
+                .url("http://10.0.2.2:5000/api/recommendations")
+                .addHeader("Authorization", "Bearer " + token)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e(TAG, "Error loading recommended videos", e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String json = response.body().string();
+                    Log.d(TAG, "Recommended JSON Content: " + json);
+
+                    Type videoListType = new TypeToken<List<Video>>() {}.getType();
+                    recommendedVideoList = new Gson().fromJson(json, videoListType);
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            recommendedVideoAdapter = new VideoAdapter(VideoListActivity.this, recommendedVideoList);
+                            recommendedRecyclerView.setAdapter(recommendedVideoAdapter);
+                            Log.d(TAG, "Recommended RecyclerView adapter set");
+                        }
+                    });
+                } else {
+                    Log.e(TAG, "Failed to fetch recommended videos: " + response.message());
                 }
             }
         });
