@@ -112,10 +112,6 @@ This project is licensed under the MIT License.
 For any questions or feedback, please reach out to [your email].
 ```
 
-This updated README now includes information about the new features like the user's own video list, edit and delete functionality, and the theme toggle. It also mentions the new layout files and Java classes that have been added to support these features.
-
-To force push these changes to your git repository, you can use the following commands:
-
 ```sh
 git add .
 git commit -m "Update README with new features and layout information"
